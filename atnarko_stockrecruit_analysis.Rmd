@@ -3,9 +3,9 @@ title: "Stock-recruitment analysis for Atnarko sockeye"
 author: "D. Greenberg"
 date: "10/25/2022"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 ---
 
@@ -192,6 +192,7 @@ ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d2))
 ```
+
 Figure 2a. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (Ricker curve with autocorrelated residuals) for the full predictive window from 1987 to 2016.
 
 ```{r, figure 2m7, warning = FALSE}
@@ -199,6 +200,7 @@ ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))
 ```
+
 Figure 2a. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift capacity) for the 90% highest log-likelihood years.
 
 ```{r, figure 2m6, warning = FALSE}
@@ -206,6 +208,7 @@ ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.2))
 ```
+
 Figure 2c. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift productivity) for the 80% highest log-likelihood years.
 
 
@@ -222,6 +225,7 @@ ggplot(SR_data, aes(x=spawners,y=recruits)) +
   geom_point(aes(colour = p.High_Cap),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
 ```
+
 Figure 3a. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by the median probability of being in the 'High Capacity' regime (Yellow indicating high probability and purple low probability, respectively).
 
 ```{r, figure3m6}
@@ -242,7 +246,9 @@ ggplot(gamma_d_m7, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
   scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5)
 ```
+
 Figure 4. Estimated probabilities of each brood year cohort being in the 'high capacity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low capacity' regime state. Shaded area represents the 90% confidence intervals in the state probabilities.
+
 ```{r, figure4m6}
 ggplot(gamma_d_m6, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
