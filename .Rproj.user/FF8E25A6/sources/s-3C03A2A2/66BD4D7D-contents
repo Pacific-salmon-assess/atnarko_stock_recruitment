@@ -3,9 +3,9 @@ title: "Stock-recruitment analysis for Atnarko sockeye"
 author: "D. Greenberg"
 date: "10/25/2022"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 ---
 
@@ -45,6 +45,7 @@ ggplot(SR_data, aes(spawners, recruits)) +
   scale_colour_viridis_c()
 
 ```
+
 Figure 1. Recruitment as a function of spawner escapement for Atnarko sockeye from brood year cohorts 1972 to 2016.
 
 \pagebreak

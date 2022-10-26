@@ -377,7 +377,7 @@ transformed parameters{
 model{
   //priors
   log_a ~ gamma(3,1); //initial productivity - wide prior
-  b0 ~ normal(-12,3); //covariates - reef
+  b0 ~ normal(-9.80,1); //covariates - reef
   
   //variance terms
   sigma_e ~ gamma(2,3);
@@ -435,7 +435,7 @@ transformed parameters{
 model{
   //priors
   log_a ~ gamma(3,1); //initial productivity - wide prior
-  b0 ~ normal(-12,3); //covariates - reef
+  b0 ~ normal(-9.80,1); //covariates - reef
   
   //variance terms
   sigma_e ~ gamma(2,3);
@@ -502,7 +502,7 @@ transformed parameters{
 model{
   //priors
   log_a0 ~ gamma(3,1); //initial productivity - wide prior
-  log_b0 ~ normal(-12,3); //covariates - reef
+  log_b0 ~ normal(-9.80,1); //covariates - reef
   
   //variance terms
   sigma_e ~ gamma(2,3);
@@ -567,7 +567,7 @@ transformed parameters{
 model{
   //priors
   log_a0 ~ gamma(3,1); //initial productivity - wide prior
-  log_b0 ~ normal(-12,3); //covariates - reef
+  log_b0 ~ normal(-9.80,1); //covariates - reef
   
   //variance terms
   sigma_e ~ gamma(2,3);
@@ -1452,7 +1452,7 @@ if(loglik==FALSE&caphigh==TRUE){
     model{
       sigma ~ gamma(2,3);
       log_a ~ gamma(3,1);
-      log_Smax ~ normal(12,3);
+      log_Smax ~ normal(-9.80,1);
       
       pi1 ~ dirichlet(rep_vector(1, K));
       
@@ -1801,7 +1801,7 @@ logalpha[t, j] = log_sum_exp(accumulator);
 model{
 sigma ~ gamma(2,3);
 log_a ~ gamma(3,1);
-log_Smax ~ normal(12,3);
+log_Smax ~ normal(-9.80,1);
 
 pi1 ~ dirichlet(rep_vector(1, K));
 

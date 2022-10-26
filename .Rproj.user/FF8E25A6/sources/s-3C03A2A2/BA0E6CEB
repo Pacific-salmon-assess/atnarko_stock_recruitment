@@ -13,14 +13,15 @@
         "source_window_id": "",
         "Source": "Source",
         "cursorPosition": "1963,0",
-        "scrollLine": "1934"
+        "scrollLine": "1934",
+        "docOutlineVisible": "1"
     },
     "folds": "",
-    "lastKnownWriteTime": 1666732068,
+    "lastKnownWriteTime": 1666803695,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1666732068023,
+    "last_content_update": 1666803695745,
     "read_only": false,
     "read_only_alternatives": []
 }
