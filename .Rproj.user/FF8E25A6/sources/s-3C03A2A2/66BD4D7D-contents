@@ -27,11 +27,19 @@ source(here('code','RP_functions.R'))
 Plot recruits as a function of escapement, by brood year.
 
 
-```{r, data}
+```{r, data, warning = FALSE, results = FALSE}
 SR_data <- read.csv(here('data','Atnarko_SK_RS.csv'))
 names(SR_data)[1]=c('broodyear')
 SR_data$logR_S<- log(SR_data$recruits/SR_data$spawners)
 SR_data<- SR_data[complete.cases(SR_data$logR_S),]
+
+#pdf of figure:
+#pdf(here('figures','Figure 1.pdf'),width=8,height=6)
+#ggplot(SR_data, aes(spawners, recruits)) +
+#  geom_point(aes(colour = broodyear),size=2.5) +
+#  scale_colour_viridis_c()
+#dev.off()
+
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
   scale_colour_viridis_c()
@@ -62,6 +70,8 @@ We start by competing each of these models in their accuracy in predicting produ
 
 
 ```{r, echo=FALSE,results='hide'}
+#Because model selection takes so long, it's easier to just run that section and load the loglikelihood results. Not sure if there's a better way to make this rMarkdown friendly...
+
 load("C:/Users/greenbergda/Desktop/atnarko/data/logliks.RData")
 ```
 
@@ -112,7 +122,7 @@ d=extract(fit_7f)
 ```
 
 
-```{r, figure 2}
+```{r, figure 2m, warning = FALSE}
 x_new=seq(min(SR_data$spawners),max(SR_data$spawners),length.out=200)
 alpha.m=median(d$log_a)
 beta.m.1=apply(d$b,2,median)[1]
@@ -126,6 +136,12 @@ pred_df=data.frame(x_new,y_pred1,y_pred2)
 SR_data$p.High_Cap=apply(d$gamma[,,1],2,median)
 gamma_d=data.frame(prob=apply(d$gamma[,,1],2,median),l90=apply(d$gamma[,,1],2,quantile,0.1),u90=apply(d$gamma[,,1],2,quantile,0.9),by=SR_data$broodyear)
 
+#pdf(here('figures','Figure 2.pdf'),width=8,height=6)
+#ggplot(SR_data, aes(spawners, recruits)) +
+#  geom_point(aes(colour = broodyear),size=2.5) +
+#  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))
+#dev.off()
+
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))
@@ -135,6 +151,12 @@ Figure 2. Predicted stock-recruitment functions for Atnarko sockeye for each reg
 
 \pagebreak
 ```{r, figure3}
+#pdf(here('figures','Figure 3.pdf'),width=8,height=6)
+#ggplot(SR_data, aes(x=spawners,y=recruits)) +
+#  geom_point(aes(colour = p.High_Cap),size=2.5) +
+#  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
+#dev.off()
+
 ggplot(SR_data, aes(x=spawners,y=recruits)) +
   geom_point(aes(colour = p.High_Cap),size=2.5) +
   scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
@@ -142,6 +164,11 @@ ggplot(SR_data, aes(x=spawners,y=recruits)) +
 Figure 3. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by the median probability of being in the 'High Capacity' regime (Yellow indicating high probability and purple low probability, respectively).
 
 ```{r, figure4}
+#pdf(here('figures','Figure 4.pdf'),width=8,height=6)
+#ggplot(gamma_d, aes(by, prob)) +
+#  geom_point(aes(colour = prob),size=3) +
+#  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5) 
+#dev.off()
 ggplot(gamma_d, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
   scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5) 
@@ -154,12 +181,30 @@ Figure 4. Estimated probabilities of each brood year cohort being in the 'high c
 $S_max$: The spawner escapement that maximizes recruitment under either regime are indicated in the histograms. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
 
 ```{r, S_max}
+#pdf(here('figures','Smax_highCap.pdf'),width=8,height=6)
+#hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners')
+#dev.off()
+
+#pdf(here('figures','Smax_lowCap.pdf'),width=8,height=6)
+#hist(d$S_max[(d$S_max[,2]<quantile(d$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')
+#dev.off()
+
+
 hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners');hist(d$S_max[(d$S_max[,2]<quantile(d$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')
 ```
 
 $S_{msy}$: Spawner escapement that would produce (theoretical) maximum sustainable yield (MSY) from each regime. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
 
 ```{r, S_msy}
+#pdf(here('figures','Smsy_highCap.pdf'),width=8,height=6)
+#hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')
+#dev.off()
+
+#pdf(here('figures','Smsy_lowCap.pdf'),width=8,height=6)
+#hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')
+#dev.off()
+
+
 hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')
 hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')
 
@@ -167,6 +212,10 @@ hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacit
 \pagebreak
 
 ```{r, U_msy}
+#pdf(here('figures','U_msy.pdf'),width=8,height=6)
+#hist(d$U_msy,main='U_msy',xlab='exploitation rate')
+#dev.off()
+
 hist(d$U_msy,main='U_msy',xlab='exploitation rate')
 ```
 

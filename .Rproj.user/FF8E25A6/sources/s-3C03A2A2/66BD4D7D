@@ -3,7 +3,7 @@
     "path": "C:/Users/greenbergda/Desktop/atnarko/atnarko_stockrecruit_analysis.Rmd",
     "project_path": "atnarko_stockrecruit_analysis.Rmd",
     "type": "r_markdown",
-    "hash": "3622122170",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1666630168469.0,
@@ -12,16 +12,16 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "97,3",
-        "scrollLine": "93",
+        "cursorPosition": "72,180",
+        "scrollLine": "47",
         "last_setup_crc32": "3C03A2A2187536c4"
     },
     "folds": "",
-    "lastKnownWriteTime": 1666733063,
+    "lastKnownWriteTime": 1666802855,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1666734447067,
+    "last_content_update": 1666802855744,
     "read_only": false,
     "read_only_alternatives": []
 }

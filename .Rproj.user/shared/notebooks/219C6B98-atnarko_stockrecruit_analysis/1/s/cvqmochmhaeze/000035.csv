@@ -1,0 +1,1 @@
+"0","hist(d$S_max[(d$S_max[,2]<quantile(d$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')"
