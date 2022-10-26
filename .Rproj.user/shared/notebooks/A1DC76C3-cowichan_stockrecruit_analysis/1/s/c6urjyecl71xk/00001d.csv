@@ -1,1 +1,0 @@
-"0","text(x=jitter(SR_data$spawners,2),y=SR_data$recruits,SR_data$brood_year,cex=0.7)"

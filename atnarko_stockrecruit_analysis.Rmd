@@ -3,9 +3,9 @@ title: "Stock-recruitment analysis for Atnarko sockeye"
 author: "D. Greenberg"
 date: "10/25/2022"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 ---
 
@@ -67,13 +67,13 @@ Model 7 - Regime-shift capacity Ricker curve
 
 Model 8 - Regime-shift prod. & cap. Ricker curve
 
-We start by competing each of these models in their accuracy in predicting productivity (log Recruits per Spawner) 1-year ahead using an iterative cross-validation approach (implemented with functions from samEst), starting from the 16th brood cohort and onwards.
+We start by competing each of these models in their accuracy in predicting productivity (log Recruits per Spawner) 1-year ahead using an iterative cross-validation approach (implemented with functions from samEst), starting from the 16th brood cohort and onwards. Note, for this analysis we have adjusted the default priors on stock capacity from samEst to be more informative for Atnarko sockeye based on a capacity prior estimate from Atlas et al. 2022 (). We set the expected capacity to be ~18000, with 1 standard deviation (on the log scale) ranging from 6600 to 43000.
 
 
 ```{r, echo=FALSE,results='hide'}
-#Because model selection takes so long, it's easier to just run that section and load the loglikelihood results. Not sure if there's a better way to make this rMarkdown friendly...
+#Because model selection takes so long, it's easier to just run that section and load the loglikelihood results (logliks.RData) from 'data'. To run through this yourself, see the 'model_selection_atnarko.R' file in code that will produce this output.
 
-load("C:/Users/greenbergda/Desktop/atnarko/data/logliks.RData")
+load(here('data','logliks.RData'))
 ```
 
 Using the out-of-sample log-likelihood estimates, we can compare the Bayesian model weights for each model set. First finding the highest likelhood prediction window (ie 1-year back parameters, last 3-year average of parameters, or last 5-year average of parameters). We can assess model weights using the full predictive dataset, or dropping the 10/20% of hardest to assess years as the full model likelihoods may be highly influenced by the most challenging to predict observations.
@@ -88,7 +88,7 @@ Using the out-of-sample log-likelihood estimates, we can compare the Bayesian mo
   wm8=which.max(apply(rbind(ll8_1,ll8_2),1,sum)) #best fit for model 8 (two combinations of higher alpha, lower cap; higher alpha, higher cap)
   if(wm8<4){
     mod_loglik=rbind(ll1,ll2[wm2,],ll3[wm3,],ll4[wm4,],ll5[wm5,],ll6[wm6,],ll7[wm7,],ll8_1[wm8,])
-    rownames(mod_loglik[[i]])[1:8]=paste('m',seq(1:8),sep='');rownames(mod_loglik[[i]])[8]='m8_1'
+    rownames(mod_loglik)[1:8]=paste('m',seq(1:8),sep='');rownames(mod_loglik)[8]='m8_1'
   }
   if(wm8>4){
     mod_loglik=rbind(ll1,ll2[wm2,],ll3[wm3,],ll4[wm4,],ll5[wm5,],ll6[wm6,],ll7[wm7,],ll8_2[wm8-4,])
@@ -100,13 +100,34 @@ Using the out-of-sample log-likelihood estimates, we can compare the Bayesian mo
   model_weights(mod_loglik,type='d80')
 ```
 
-Using the 1-year out-of-sample predictive accuracy from 1987 to 2016, the best supported model was time-varying capacity (model 4), with regime-shift capacity or regime-shift productivity and capacity having the next levels of support based on the 90% and 80% highest accuracy observations, respectively. 
+Using the 1-year out-of-sample predictive accuracy from 1987 to 2016, the best supported model was the static model with autocorrelated residuals (model 4), with regime-shift capacity (model 4) and regime-shift productivity having the next highest level of support based on the 90% and 80% highest accuracy observations, respectively. 
 
-Note that the time-varying beta model (m4) actually had considerable convergence problems fitting to the full data - which can happen when data are clustered near the origin of the stock-recruitment plot - so we will proceed with model 7 instead (regime-shift capacity), which has similar conceptual linkages to model 4. Note - that these are all based on statistical fits, and may or may not actually represent a true shift in stock carrying capacity.
+We'll proceed by fitting and visualizing these three models to the full dataset.
 
 
 ```{r, echo=FALSE,results='hide'}
+m2f=sr_mod(type='static',ac = TRUE,par='n',loglik=F)
 m7f=sr_mod(type='hmm',par='b',loglik=F)
+m6f=sr_mod(type='hmm',par='a',loglik=F)
+
+fit_2f= rstan::sampling(m2f, 
+                        data = list(N=nrow(SR_data),
+                                    L=max(SR_data$broodyear)-min(SR_data$broodyear)+1,
+                                    ii=SR_data$broodyear-min(SR_data$broodyear)+1,
+                                    R_S =SR_data$logR_S,
+                                    S=SR_data$spawners
+                                  ),
+                        control = list(adapt_delta = 0.95,max_treedepth=20), warmup = 200, chains = 6, iter = 700)
+
+fit_6f= rstan::sampling(m6f, 
+                        data = list(N=nrow(SR_data),
+                                    L=max(SR_data$broodyear)-min(SR_data$broodyear)+1,
+                                    ii=SR_data$broodyear-min(SR_data$broodyear)+1,
+                                    R_S =SR_data$logR_S,
+                                    S=SR_data$spawners,
+                                    K=2,
+                                    alpha_dirichlet=c(1,1)),
+                        control = list(adapt_delta = 0.95,max_treedepth=20), warmup = 200, chains = 6, iter = 700)
 
 fit_7f= rstan::sampling(m7f, 
                         data = list(N=nrow(SR_data),
@@ -118,40 +139,79 @@ fit_7f= rstan::sampling(m7f,
                                     alpha_dirichlet=c(1,1)),
                         control = list(adapt_delta = 0.95,max_treedepth=20), warmup = 200, chains = 6, iter = 700)
 
-d=extract(fit_7f)
+
+d2=extract(fit_2f)
+d6=extract(fit_6f)
+d7=extract(fit_7f)
 
 ```
 
 
-```{r, figure 2m, warning = FALSE}
+```{r, mod preds, warning = FALSE}
 x_new=seq(min(SR_data$spawners),max(SR_data$spawners),length.out=200)
-alpha.m=median(d$log_a)
-beta.m.1=apply(d$b,2,median)[1]
-beta.m.2=apply(d$b,2,median)[2]
 
-y_pred1=exp(alpha.m-beta.m.1*x_new)*x_new
-y_pred2=exp(alpha.m-beta.m.2*x_new)*x_new
+#predicted fits for each model
+#m2 - ac ricker
+alpha.m2=median(d2$log_a)
+beta.m2=median(d2$b)
 
-pred_df=data.frame(x_new,y_pred1,y_pred2)
+y_pred_d2=exp(alpha.m2-beta.m2*x_new)*x_new
+#m6 - regime alpha
+alpha.m6=apply(d6$log_a,2,median)
+beta.m6=median(d6$b)
 
-SR_data$p.High_Cap=apply(d$gamma[,,1],2,median)
-gamma_d=data.frame(prob=apply(d$gamma[,,1],2,median),l90=apply(d$gamma[,,1],2,quantile,0.1),u90=apply(d$gamma[,,1],2,quantile,0.9),by=SR_data$broodyear)
+y_pred_d6.1=exp(alpha.m6[1]-beta.m6*x_new)*x_new
+y_pred_d6.2=exp(alpha.m6[2]-beta.m6*x_new)*x_new
 
+#m7 - regime beta
+alpha.m7=median(d7$log_a)
+beta.m7=apply(d7$b,2,median)
+
+y_pred_d7.1=exp(alpha.m7-beta.m7[1]*x_new)*x_new
+y_pred_d7.2=exp(alpha.m7-beta.m7[2]*x_new)*x_new
+
+pred_df=data.frame(x_new,y_pred_d2,y_pred2,y_pred_d6.1,y_pred_d6.2,y_pred_d7.1,y_pred_d6.2)
+
+
+#Probability for each regime
+SR_data$p.High_Cap=apply(d7$gamma[,,1],2,median)
+SR_data$p.High_Prod=apply(d6$gamma[,,2],2,median)
+
+gamma_d_m6=data.frame(prob=apply(d6$gamma[,,2],2,median),l90=apply(d6$gamma[,,2],2,quantile,0.1),u90=apply(d6$gamma[,,2],2,quantile,0.9),by=SR_data$broodyear)
+gamma_d_m7=data.frame(prob=apply(d7$gamma[,,1],2,median),l90=apply(d7$gamma[,,1],2,quantile,0.1),u90=apply(d7$gamma[,,1],2,quantile,0.9),by=SR_data$broodyear)
 #pdf(here('figures','Figure 2.pdf'),width=8,height=6)
 #ggplot(SR_data, aes(spawners, recruits)) +
 #  geom_point(aes(colour = broodyear),size=2.5) +
 #  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))
 #dev.off()
 
+
+```
+```{r, figure 2m2, warning = FALSE}
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))
+  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d2))
 ```
+Figure 2a. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (Ricker curve with autocorrelated residuals) for the full predictive window from 1987 to 2016.
 
-Figure 2. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by brood cohort year.
+```{r, figure 2m7, warning = FALSE}
+ggplot(SR_data, aes(spawners, recruits)) +
+  geom_point(aes(colour = broodyear),size=2.5) +
+  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))
+```
+Figure 2a. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift capacity) for the 90% highest log-likelihood years.
+
+```{r, figure 2m6, warning = FALSE}
+ggplot(SR_data, aes(spawners, recruits)) +
+  geom_point(aes(colour = broodyear),size=2.5) +
+  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.2))
+```
+Figure 2c. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift productivity) for the 80% highest log-likelihood years.
+
+
 
 \pagebreak
-```{r, figure3}
+```{r, figure3m7}
 #pdf(here('figures','Figure 3.pdf'),width=8,height=6)
 #ggplot(SR_data, aes(x=spawners,y=recruits)) +
 #  geom_point(aes(colour = p.High_Cap),size=2.5) +
@@ -160,28 +220,45 @@ Figure 2. Predicted stock-recruitment functions for Atnarko sockeye for each reg
 
 ggplot(SR_data, aes(x=spawners,y=recruits)) +
   geom_point(aes(colour = p.High_Cap),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
+  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
 ```
-Figure 3. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by the median probability of being in the 'High Capacity' regime (Yellow indicating high probability and purple low probability, respectively).
+Figure 3a. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by the median probability of being in the 'High Capacity' regime (Yellow indicating high probability and purple low probability, respectively).
 
-```{r, figure4}
+```{r, figure3m6}
+ggplot(SR_data, aes(x=spawners,y=recruits)) +
+  geom_point(aes(colour = p.High_Prod),size=2.5) +
+  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
+```
+
+Figure 3b. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low productivity regimes), with observations coloured by the median probability of being in the 'High Productivity' regime (Yellow indicating high probability and purple low probability, respectively).
+
+```{r, figure4m7}
 #pdf(here('figures','Figure 4.pdf'),width=8,height=6)
 #ggplot(gamma_d, aes(by, prob)) +
 #  geom_point(aes(colour = prob),size=3) +
 #  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5) 
 #dev.off()
-ggplot(gamma_d, aes(by, prob)) +
+ggplot(gamma_d_m7, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
-  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5) 
+  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5)
 ```
 Figure 4. Estimated probabilities of each brood year cohort being in the 'high capacity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low capacity' regime state. Shaded area represents the 90% confidence intervals in the state probabilities.
+```{r, figure4m6}
+ggplot(gamma_d_m6, aes(by, prob)) +
+  geom_point(aes(colour = prob),size=3) +
+  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Productivity Regime') + geom_hline(yintercept=0.5)
+
+```
+
+Figure 4. 1) Estimated probabilities of each brood year cohort being in the 'high productivity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low productivity' regime state. 2)
+Shaded area represents the 90% confidence intervals in the state probabilities.
 
 \pagebreak
 ## Reference points
 
-$S_max$: The spawner escapement that maximizes recruitment under either regime are indicated in the histograms. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
+$S_max$: Histogram of the estimated spawner escapement that maximizes recruitment. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
 
-```{r, S_max}
+```{r, S_max_m2}
 #pdf(here('figures','Smax_highCap.pdf'),width=8,height=6)
 #hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners')
 #dev.off()
@@ -190,13 +267,22 @@ $S_max$: The spawner escapement that maximizes recruitment under either regime a
 #hist(d$S_max[(d$S_max[,2]<quantile(d$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')
 #dev.off()
 
-
-hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners');hist(d$S_max[(d$S_max[,2]<quantile(d$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')
+hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, Autocorrelated Ricker',xlab='spawners')
 ```
 
-$S_{msy}$: Spawner escapement that would produce (theoretical) maximum sustainable yield (MSY) from each regime. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
+This figure corresponds to the top-ranked model (autocorrelated Ricker) for the full predictive samples from 1987 to 2016. 
+ 
+```{r, S_max_m7}
+par(mfrow=c(1,2))
+hist(d7$S_max[(d7$S_max[,1]<quantile(d7$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners');hist(d7$S_max[(d7$S_max[,2]<quantile(d7$S_max[,2],0.9)),2],main='S_max, Low Capacity Regime',xlab='spawners')
+```
 
-```{r, S_msy}
+This figure corresponds to the top-ranked model (regime-shift beta) for the 90% highest predictive accuracy years - indicating the $S_max$ differences in each regime.
+
+\pagebreak
+$S_{msy}$: Histogram of the estimated spawner escapement that would produce (theoretical) maximum sustainable yield (MSY). Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
+
+```{r, S_msy_m2}
 #pdf(here('figures','Smsy_highCap.pdf'),width=8,height=6)
 #hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')
 #dev.off()
@@ -205,19 +291,49 @@ $S_{msy}$: Spawner escapement that would produce (theoretical) maximum sustainab
 #hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')
 #dev.off()
 
+hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, Autocorrelated Ricker',xlab='spawners')
+```
 
-hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')
-hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')
+This figure corresponds to the top-ranked model (autocorrelated Ricker) for the full predictive samples from 1987 to 2016. 
+
+```{r, S_msy_m7}
+par(mfrow=c(1,2))
+hist(d7$S_msy[(d7$S_msy[,1]<quantile(d7$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')
+hist(d7$S_msy[(d7$S_msy[,2]<quantile(d7$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')
+```
+
+This figure corresponds to the top-ranked model (regime-shift capacity) for the 90% highest predictive accuracy years - indicating the $S_msy$ differences in each regime.
+
+```{r, S_msy_m6}
+par(mfrow=c(1,2))
+hist(d6$S_msy[(d6$S_msy[,2]<quantile(d6$S_msy[,2],0.9)),2],main='S_msy, High Productivity Regime',xlab='spawners')
+hist(d6$S_msy[(d6$S_msy[,1]<quantile(d6$S_msy[,1],0.9)),1],main='S_msy, Low Productivity Regime',xlab='spawners')
 
 ```
+
+This figure corresponds to the top-ranked model (regime-shift productivity) for the 90% highest predictive accuracy years - indicating the $S_msy$ differences in each regime.
+
 \pagebreak
 
-```{r, U_msy}
+$U_{msy}$: The corresponding maximum sustainable annual exploitation rate is shared between both regimes, since it depends on the shared productivity parameter.
+
+```{r, U_msy_m2}
 #pdf(here('figures','U_msy.pdf'),width=8,height=6)
 #hist(d$U_msy,main='U_msy',xlab='exploitation rate')
 #dev.off()
 
-hist(d$U_msy,main='U_msy',xlab='exploitation rate')
+hist(d2$U_msy,main='U_msy',xlab='exploitation rate',xlim=c(0,1))
 ```
 
-$U_{msy}$: The corresponding maximum sustainable annual exploitation rate is shared between both regimes, since it depends on the shared productivity parameter.
+This figure corresponds to $U_msy$ from the top-ranked model (autocorrelated Ricker) for the full predictive samples from 1987 to 2016. 
+
+
+```{r, U_msy_m6}
+par(mfrow=c(1,2))
+hist(d6$U_msy[,2],main='U_msy, High Productivity Regime',xlab='exploitation rate',xlim=c(0,1))
+hist(d6$U_msy[,1],main='U_msy, Low Productivity Regime',xlab='exploitation rate',xlim=c(0,1))
+```
+
+This figure corresponds to $U_msy$ from the top-ranked model (regime-shift productivity) for the 80% highest predictive accuracy years - indicating the $U_msy$ differences in each regime.
+
+

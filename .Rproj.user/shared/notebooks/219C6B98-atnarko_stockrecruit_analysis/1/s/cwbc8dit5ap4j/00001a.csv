@@ -1,2 +1,0 @@
-"0","hist(d$S_msy[(d$S_msy[,2]<quantile(d$S_msy[,2],0.9)),2],main='S_msy, Low Capacity Regime',xlab='spawners')"
-"0",""

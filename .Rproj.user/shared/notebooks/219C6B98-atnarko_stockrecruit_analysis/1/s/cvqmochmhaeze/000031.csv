@@ -1,2 +1,0 @@
-"0","pdf(here('figures','Smax_highCap.pdf'),width=8,height=6)"
-"0","hist(d$S_max[(d$S_max[,1]<quantile(d$S_max[,1],0.9)),1],main='S_max, High Capacity Regime',xlab='spawners')"

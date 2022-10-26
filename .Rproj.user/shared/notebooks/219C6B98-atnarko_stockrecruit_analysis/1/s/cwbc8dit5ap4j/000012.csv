@@ -1,2 +1,0 @@
-"0","pdf(here('figures','Smsy_highCap.pdf'),width=8,height=6)"
-"0","hist(d$S_msy[(d$S_msy[,1]<quantile(d$S_msy[,1],0.9)),1],main='S_msy, High Capacity Regime',xlab='spawners')"

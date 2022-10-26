@@ -1,1 +1,3 @@
-"0","load(""C:/Users/greenbergda/Desktop/atnarko/data/logliks.RData"")"
+"0","#Because model selection takes so long, it's easier to just run that section and load the loglikelihood results (logliks.RData) from 'data'. To run through this yourself, see the 'model_selection_atnarko.R' file in code that will produce this output."
+"0",""
+"0","load(here('data','logliks.RData'))"
