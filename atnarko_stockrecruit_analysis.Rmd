@@ -247,7 +247,8 @@ ggplot(gamma_d_m7, aes(by, prob)) +
   scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5)
 ```
 
-Figure 4. Estimated probabilities of each brood year cohort being in the 'high capacity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low capacity' regime state. Shaded area represents the 90% confidence intervals in the state probabilities.
+
+Figure 4a. Estimated probabilities of each brood year cohort being in the 'high capacity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low capacity' regime state. Shaded area represents the 90% confidence intervals in the state probabilities.
 
 ```{r, figure4m6}
 ggplot(gamma_d_m6, aes(by, prob)) +
@@ -256,13 +257,13 @@ ggplot(gamma_d_m6, aes(by, prob)) +
 
 ```
 
-Figure 4. 1) Estimated probabilities of each brood year cohort being in the 'high productivity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low productivity' regime state. 2)
+Figure 4b. Estimated probabilities of each brood year cohort being in the 'high productivity' regime state from 1972 to 2016, conversely, low probabilities indicate a high probability of being in a 'low productivity' regime state.
 Shaded area represents the 90% confidence intervals in the state probabilities.
 
 \pagebreak
 ## Reference points
 
-$S_max$: Histogram of the estimated spawner escapement that maximizes recruitment. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
+$S_{max}$: Histogram of the estimated spawner escapement that maximizes recruitment. Note that esitmates are truncated here (for visual purposes) at the 90% upper estimate to remove extremely high estimates on the tails of the parameters for each regime.
 
 ```{r, S_max_m2}
 #pdf(here('figures','Smax_highCap.pdf'),width=8,height=6)
