@@ -1,0 +1,3 @@
+"0","ggplot(gamma_d, aes(by, prob)) +"
+"0","  geom_point(aes(colour = prob),size=3) +"
+"0","  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5) "

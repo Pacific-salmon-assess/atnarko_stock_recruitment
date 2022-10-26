@@ -1,0 +1,7 @@
+"0","SR_data <- read.csv(here('data','Atnarko_SK_RS.csv'))"
+"0","SR_data$logR_S<- log(SR_data$recruits/SR_data$spawners)"
+"0","SR_data<- SR_data[complete.cases(SR_data$logR_S),]"
+"0","ggplot(SR_data, aes(spawners, recruits)) +"
+"0","  geom_point(aes(colour = brood_year)) +"
+"0","  scale_colour_viridis_c()"
+"0",""
