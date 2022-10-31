@@ -158,7 +158,7 @@ gamma_d_m7=data.frame(prob=apply(d7$gamma[,,1],2,median),l90=apply(d7$gamma[,,1]
 SR_data2=cbind(SR_data2,resid.df[,1:3])
 ```
 
-```{r, figure 2m2, warning = FALSE,fig.width=8,fig.height = 4}
+```{r, figure 2m2, warning = FALSE}
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=4,show.legend=FALSE) +
   scale_colour_viridis_c(name = "Year")+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d2),size=1.5)+
@@ -370,7 +370,7 @@ C) Sea surface temperature (SST) - annual SST anomalies sampled at the Pine Isla
 
 D) North Pacifc Gyre Oscillation (NPGO) index - NPGO during the 2nd winter of marine residency.
 
-```{r, figure 9c}
+```{r, figure 9c,figure.width=16,figure.height=16}
 colnames(SR_data2) <- make.unique(names(SR_data2))
 fg9a=ggplot(SR_data2, aes(year, cm_fry_lag))+geom_line(aes(year,cm_fry_lag), alpha = 0.3)+
   geom_point(aes(colour = year),size=2.5) +xlab('Year')+ylab('Chum fry')+
@@ -404,7 +404,7 @@ Figure 9. Trends in each ecosystem-level variable.
 \pagebreak
 Let's similarly visualize the productivity residuals against these various indices:
 
-```{r, figure 10,figure.width=12,figure.height=12}
+```{r, figure 10,figure.width=16,figure.height=16}
 
 fg10a=ggplot(SR_data2, aes(cm_fry_lag, resids))+
   geom_point(aes(colour = year),size=2.5) +xlab('Chum fry')+ylab('Prod. deviations')+scale_colour_viridis_c(name = "Year")
