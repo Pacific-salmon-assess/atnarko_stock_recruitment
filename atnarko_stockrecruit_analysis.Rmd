@@ -53,7 +53,7 @@ ggplot(SR_data, aes(spawners, recruits)) +
 Figure 1. Recruitment as a function of spawner escapement for Atnarko sockeye from brood year cohorts 1972 to 2016.
 
 \pagebreak
-##Model selection
+## Model Selection
 We will use the Atnarko sockeye stock-recruitment time-series to compare 8 different stock-recruitment model forms that represent time-invariant (models 1 & 2), time-varying (models 3 - 5), or regime-shift (models 6 - 8) model types. For the sake of brevity we will omit the finer details of these models - but by comparing these different forms we can ask whether the data best support either static stock-recruitment dynamics or non-stationary stock-recruitment dynamics in the form of either continuous changes in the parameters or through distinct shifts between stock regime states.
 
 Model 1 - Static Ricker curve
@@ -344,7 +344,7 @@ hist(d6$U_msy[,1],main='U_msy, Low Productivity Regime',xlab='exploitation rate'
 
 Figure 7c. This figure corresponds to $U_{msy}$ from the top-ranked model (regime-shift productivity) for the 80% highest predictive accuracy years - indicating the $U_{msy}$ differences in each regime.
 
-##Ecosystem Covariates
+## Ecosystem-level Covariates of Productivity
 
 In this section, we will explore some ecosystem covariates that may have an influence on productivity in Atnarko sockeye.
 
@@ -398,6 +398,7 @@ tp9=plot_grid(fg9a + theme(legend.position="none"),
 
 plot_grid(tp9,legend,rel_widths = c(3,.3))
 ```
+
 Figure 9. Trends in each ecosystem-level variable.
 
 \pagebreak
