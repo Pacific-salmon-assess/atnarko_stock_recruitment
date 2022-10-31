@@ -160,9 +160,8 @@ SR_data2=cbind(SR_data2,resid.df[,1:3])
 
 ```{r, figure 2m2, warning = FALSE}
 ggplot(SR_data, aes(spawners, recruits)) +
-  geom_point(aes(colour = broodyear),size=4,show.legend=FALSE) +
-  scale_colour_viridis_c(name = "Year")+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d2),size=1.5)+
-  theme(plot.margin = margin(1,2,1.3,1.2, "cm"))+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
+  geom_point(aes(colour = broodyear),size=2.5,) +
+  scale_colour_viridis_c(name = "Year")+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d2))+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
         axis.title=element_text(size=12,face="bold"))
 ```
 
@@ -177,7 +176,8 @@ summary(d2$rho)
 ```{r, figure 2m7, warning = FALSE}
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))
+  scale_colour_viridis_c(name = "Year")+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 ```
 
 Figure 2b. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift capacity) for the 90% highest log-likelihood years.
@@ -185,18 +185,12 @@ Figure 2b. Predicted stock-recruitment functions for Atnarko sockeye, with obser
 ```{r, figure 2m6, warning = FALSE}
 ggplot(SR_data, aes(spawners, recruits)) +
   geom_point(aes(colour = broodyear),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.2))
+  scale_colour_viridis_c(name = "Year")+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.2))+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 ```
 
 Figure 2c. Predicted stock-recruitment functions for Atnarko sockeye, with observations coloured by brood cohort year, from the top-rated model (regime-shift productivity) for the 80% highest log-likelihood years.
 
-\pagebreak
-```{r, figure3m2}
-ggplot(resid.df, aes(by, resids)) +
-  geom_point(aes(colour = by),size=3) +
-  scale_colour_viridis_c(name = "Year") + geom_ribbon(aes(ymin =resid.l90, ymax=resid.u90), alpha = 0.2) +xlab('Brood year')+ylab('Residual Productivity') + geom_hline(yintercept=0)
-
-```
 \pagebreak
 ```{r, figure3m7}
 #pdf(here('figures','Figure 3.pdf'),width=8,height=6)
@@ -207,7 +201,8 @@ ggplot(resid.df, aes(by, resids)) +
 
 ggplot(SR_data, aes(x=spawners,y=recruits)) +
   geom_point(aes(colour = p.High_Cap),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
+  scale_colour_viridis_c(name='P(High cap.)')+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.2))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 ```
 
 Figure 3a. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low capacity regimes), with observations coloured by the median probability of being in the 'High Capacity' regime (Yellow indicating high probability and purple low probability, respectively).
@@ -215,7 +210,8 @@ Figure 3a. Predicted stock-recruitment functions for Atnarko sockeye for each re
 ```{r, figure3m6}
 ggplot(SR_data, aes(x=spawners,y=recruits)) +
   geom_point(aes(colour = p.High_Prod),size=2.5) +
-  scale_colour_viridis_c()+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)
+  scale_colour_viridis_c(name='P(High prod.)')+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d6.1))+geom_line(data=pred_df,aes(x=x_new,y=y_pred_d7.1))+ geom_text(data=SR_data, aes(x=spawners, y=recruits, label=broodyear),hjust=1.2, vjust=0.8,size=2.5)+xlab("Spawners") + ylab("Recruits")+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 ```
 
 Figure 3b. Predicted stock-recruitment functions for Atnarko sockeye for each regime (high and low productivity regimes), with observations coloured by the median probability of being in the 'High Productivity' regime (Yellow indicating high probability and purple low probability, respectively).
@@ -228,7 +224,8 @@ Figure 3b. Predicted stock-recruitment functions for Atnarko sockeye for each re
 #dev.off()
 ggplot(gamma_d_m7, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
-  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5)
+  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Capacity Regime') + geom_hline(yintercept=0.5)+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 ```
 
 
@@ -237,7 +234,8 @@ Figure 4a. Estimated probabilities of each brood year cohort being in the 'high 
 ```{r, figure4m6}
 ggplot(gamma_d_m6, aes(by, prob)) +
   geom_point(aes(colour = prob),size=3) +
-  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Productivity Regime') + geom_hline(yintercept=0.5)
+  scale_colour_viridis_c() + geom_ribbon(aes(ymin =l90, ymax =u90), alpha = 0.2) +xlab('Brood year')+ylab('Prob. of High Productivity Regime') + geom_hline(yintercept=0.5)+theme(axis.text=element_text(size=11),
+        axis.title=element_text(size=12,face="bold"))
 
 ```
 
@@ -354,7 +352,8 @@ To begin let's visualize the annual deviations in productivity, $log(R/S)$, rela
 ggplot(resid.df, aes(by, resids)) +
   geom_hline(yintercept=0)+geom_line(aes(by,resids))+
   geom_point(aes(colour = by),size=3) +
-  scale_colour_viridis_c(name = "Year",) + geom_ribbon(aes(ymin =resid.l90, ymax=resid.u90), alpha = 0.2) +xlab('Brood year')+ylab('Annual Productivity (log(R/S)) Deviation')
+  scale_colour_viridis_c(name = "Year",) + geom_ribbon(aes(ymin =resid.l90, ymax=resid.u90), alpha = 0.2) +xlab('Brood year')+ylab('Annual Productivity Deviation')+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 ```
 
 Figure 8. Annual deviations in productivity $log(R/S)$ through time.
@@ -374,19 +373,23 @@ D) North Pacifc Gyre Oscillation (NPGO) index - NPGO during the 2nd winter of ma
 colnames(SR_data2) <- make.unique(names(SR_data2))
 fg9a=ggplot(SR_data2, aes(year, cm_fry_lag))+geom_line(aes(year,cm_fry_lag), alpha = 0.3)+
   geom_point(aes(colour = year),size=2.5) +xlab('Year')+ylab('Chum fry')+
-  scale_colour_viridis_c(name = "Year")
+  scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
  
 fg9b=ggplot(SR_data2, aes(year, pk_avg))+geom_line(aes(year,pk_avg), alpha = 0.3)+
   geom_point(aes(colour = year),size=2.5) +xlab('Year')+ylab('Pink abundance')+
-  scale_colour_viridis_c(name = "Year")
+  scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 fg9c=ggplot(SR_data2, aes(year, SST_pine_yr))+geom_line(aes(year,SST_pine_yr), alpha = 0.3)+
   geom_point(aes(colour = year),size=2.5) +xlab('Year')+ylab('SST Anomaly')+
-  scale_colour_viridis_c(name = "Year")
+  scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 fg9d=ggplot(SR_data2, aes(year, NPGO_2wint))+geom_line(aes(year,NPGO_2wint), alpha = 0.3)+
   geom_point(aes(colour = year),size=2.5) +xlab('Year')+ylab('NPGO Index')+
-  scale_colour_viridis_c(name = "Year")
+  scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 legend = get_legend(fg9a)
 
@@ -407,16 +410,20 @@ Let's similarly visualize the productivity residuals against these various indic
 ```{r, figure 10,figure.width=16,figure.height=16}
 
 fg10a=ggplot(SR_data2, aes(cm_fry_lag, resids))+
-  geom_point(aes(colour = year),size=2.5) +xlab('Chum fry')+ylab('Prod. deviations')+scale_colour_viridis_c(name = "Year")
+  geom_point(aes(colour = year),size=2.5) +xlab('Chum fry')+ylab('Prod. deviations')+scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
  
 fg10b=ggplot(SR_data2, aes(pk_avg, resids))+
-  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Pink abundance')+ylab(NULL)+scale_colour_viridis_c(name = "Year")
+  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Pink abundance')+ylab(NULL)+scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 fg10c=ggplot(SR_data2, aes(SST_pine_yr, resids))+
-  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Annual SST anomaly')+ylab('Prod. deviations')+scale_colour_viridis_c(name = "Year")
+  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Annual SST anomaly')+ylab('Prod. deviations')+scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 fg10d=ggplot(SR_data2, aes(NPGO_2wint, resids))+
-  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Winter NPGO index')+ylab(NULL)+scale_colour_viridis_c(name = "Year")
+  geom_point(aes(colour = year),size=2.5,show.legend = FALSE) +xlab('Winter NPGO index')+ylab(NULL)+scale_colour_viridis_c(name = "Year")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
 
 legend= get_legend(fg10a)
 
@@ -444,22 +451,30 @@ names(beta_cov)=c('chum fry','pink abund','SST','NPGO')
 f11a=ggplot(beta_cov, aes(x = beta_cov[,1])) + 
   geom_vline(xintercept=0)+
   geom_histogram(aes(y = ..density..),
-                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Chum fry releases")
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Chum fry releases")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
+
 
 f11b=ggplot(beta_cov, aes(x = beta_cov[,2])) + 
   geom_vline(xintercept=0)+
   geom_histogram(aes(y = ..density..),
-                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Pink abundance")
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Pink abundance")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
+
 
 f11c=ggplot(beta_cov, aes(x = beta_cov[,3])) + 
   geom_vline(xintercept=0)+
   geom_histogram(aes(y = ..density..),
-                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("SST anomaly")
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("SST anomaly")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
+
 
 f11d=ggplot(beta_cov, aes(x = beta_cov[,4])) + 
   geom_vline(xintercept=0)+
   geom_histogram(aes(y = ..density..),
-                 colour = 1, fill = "darkred",bins = 30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("NPGO")
+                 colour = 1, fill = "darkred",bins = 30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("NPGO")+theme(axis.text=element_text(size=11),
+       axis.title=element_text(size=12,face="bold"))
+
 
 
 plot_grid(f11a,f11b,f11c,f11d,ncol=2,nrow=2)
