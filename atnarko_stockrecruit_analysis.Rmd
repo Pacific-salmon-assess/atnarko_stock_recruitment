@@ -439,6 +439,7 @@ The standardized linear effect size for each covariate, when included in the sta
 d_cov=extract(fit_2cov)
 
 beta_cov=as.data.frame(d_cov$beta_cov)
+names(beta_cov)=c('chum fry','pink abund','SST','NPGO')
 
 f11a=ggplot(beta_cov, aes(x = beta_cov[,1])) + 
   geom_vline(xintercept=0)+
@@ -462,5 +463,7 @@ f11d=ggplot(beta_cov, aes(x = beta_cov[,4])) +
 
 
 plot_grid(f11a,f11b,f11c,f11d,ncol=2,nrow=2)
+
+summary(beta_cov)
 ```
 
