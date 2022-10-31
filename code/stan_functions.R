@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #' m2=sr_mod(type='static',ac = TRUE,par='n',loglik=T)
-sr_mod<- function(type=c('static','rw','hmm'),ac=FALSE,par=c('n','a','b','both'),caphigh=FALSE,loglik=FALSE, modelcode=FALSE){
+sr_mod<- function(type=c('static','rw','hmm'),ac=FALSE,par=c('n','a','b','both'),cov=FALSE,x_cov,caphigh=FALSE,loglik=FALSE, modelcode=FALSE){
   
   #M1: Static S-R####
   if(type=='static'&ac==F){
@@ -33,8 +33,12 @@ sr_mod<- function(type=c('static','rw','hmm'),ac=FALSE,par=c('n','a','b','both')
     }
     transformed parameters{
     	real b;
+    	vector[N] mu; //prediction for each year
+    	vector[N] epsilon; //residuals
     	
     	b = exp(log_b); //prevents b (density dependence) from being negative (ie. positive)
+    	mu = log_a - S*b;
+    	epsilon = R_S - mu;
     }
     model{
       //priors
@@ -44,7 +48,7 @@ sr_mod<- function(type=c('static','rw','hmm'),ac=FALSE,par=c('n','a','b','both')
       //variance terms
       sigma_e ~ gamma(2,3);
       
-      R_S ~ normal(log_a - S*b, sigma_e);
+      R_S ~ normal(mu, sigma_e);
     }
     generated quantities{
      real S_max;
@@ -93,6 +97,58 @@ sr_mod<- function(type=c('static','rw','hmm'),ac=FALSE,par=c('n','a','b','both')
     	log_lik_oos = normal_lpdf(y_oos|log_a - x_oos*b, sigma_e);
     }
     "}
+    if(cov==TRUE){
+      m="data{
+      int<lower=1> N;//number of annual samples (time-series length)
+      vector[N] R_S; //log(recruits per spawner)
+      vector[N] S; //spawners in time T
+      int Z; // columns in the covariate matrix
+      matrix[N,Z] X; // covariate matrix
+      }
+     transformed data {
+       matrix[N,Z] X_std;
+       
+       for(z in 1:Z){
+        X_std[,z] = (X[,z] - mean(X[,z])) / sd(X[,z]);
+       }
+     }
+    parameters {
+      real<lower = 0> log_a;// initial productivity (on log scale)
+      real<upper = 0> log_b; // rate capacity - fixed in this
+    
+     //
+      vector[Z] beta_cov; //coefficient estimates corresponding to vectors in X
+     //variance components  
+      real<lower = 0> sigma_e;
+    
+    }
+    transformed parameters{
+    	real b;
+    	
+    	b = exp(log_b); //prevents b (density dependence) from being negative (ie. positive)
+    }
+    model{
+      //priors
+      log_a ~ gamma(3,1); //intrinsic productivity - wide prior
+      log_b ~ normal(-9.80,1); //per capita capacity parameter - wide prior
+      beta_cov ~ std_normal(); //N(0,1) prior for standardized effect sizes of covariates
+      
+      //variance terms
+      sigma_e ~ gamma(2,3);
+      
+      R_S ~ normal(log_a - S*b + X_std*beta_cov, sigma_e);
+    }
+    generated quantities{
+     real S_max;
+     real U_msy;
+     real S_msy;
+     
+    S_max = 1/b;
+    U_msy = 1-lambert_w0(exp(1-log_a));
+    S_msy = (1-lambert_w0(exp(1-log_a)))/b;
+    }
+    "
+    }
   }
   
   #M2: AR(1) S-R####
@@ -219,7 +275,77 @@ generated quantities{
   log_lik_oos_5b = normal_lpdf(y_oos|log_a - x_oos*b+rho*ep_5b, sigma_AR);
  } 
     "}
+if(cov==TRUE&loglik==FALSE){
+m="data{
+  int<lower=1> N;//number of annual samples
+  int<lower=1> L;//number years in the data series(time-series length)
+  int ii[N];//index of years with data
+  vector[N] R_S; //log(recruits per spawner)
+  vector[N] S; //spawners in time T
+  int Z; // columns in the covariate matrix
+  matrix[N,Z] X; // covariate matrix
+}
+   transformed data {
+       matrix[N,Z] X_std;
+       
+       for(z in 1:Z){
+        X_std[,z] = (X[,z] - mean(X[,z])) / sd(X[,z]);
+       }
+     }
+parameters{
+  real log_a;// initial productivity (on log scale)
+  real log_b; // rate capacity - fixed in this
+  vector[Z] beta_cov; //coefficient estimates corresponding to vectors in X
+     
+ //variance components  
+  real<lower = 0> sigma_e;
+  real<lower = -1, upper = 1> rho;
+
+}
+transformed parameters{
+real b;
+vector[N] mu;
+vector[N] epsilon; //residuals
+real sigma_AR;
+
+b = exp(log_b);
+mu = log_a-b*S+X_std*beta_cov;
+
+epsilon[1] = R_S[1] - mu[1];
+  for(t in 2:N){
+    mu[t] = mu[t] + (rho^(ii[t]-ii[t-1])*epsilon[t-1]); //rho raised the power of the number of time-steps between successive productivity estimates
+    epsilon[t] =(R_S[t] - mu[t]);
   }
+sigma_AR = sigma_e*sqrt(1-rho^2);
+}
+model{
+  //priors
+  log_a ~ gamma(3,1); //initial productivity - wide prior
+  log_b ~ normal(-9.80,1); //initial productivity - wide prior
+  rho ~ uniform(-1,1); //autocorrelation coefficient
+  beta_cov ~ std_normal();
+  
+  //variance terms
+  sigma_e ~ gamma(2,3);
+
+R_S[1] ~ normal(mu[1], sigma_e);
+for(t in 2:N) R_S[t] ~ normal(mu[t], sigma_AR);
+  
+}
+ generated quantities{
+     real S_max;
+     real U_msy;
+     real S_msy;
+     
+    
+    S_max = 1/b;
+    U_msy = 1-lambert_w0(exp(1-log_a));
+    S_msy = (1-lambert_w0(exp(1-log_a)))/b;
+    }
+    "
+
+  }
+}
 #M3: TV Prod S-R####
 if(type=='rw'&par=='a'){
   if(loglik==FALSE){
