@@ -431,3 +431,36 @@ plot_grid(tp10,legend,rel_widths = c(3,.3))
 ```
 
 Figure 10. Annual deviations in productivity ($log(R/S)$) as a function of A) annual releases of chum fry, B) average abundance of pink salmon, C) annual sea surface temperature anomalies, and D) winter North Pacific Gyre Oscillation index.
+
+
+The standardized linear effect size for each covariate, when included in the static autocorrelated Ricker model are as follows:
+
+```{r, figure 11,figure.width=16,figure.height=16,warning = FALSE}
+d_cov=extract(fit_2cov)
+
+beta_cov=as.data.frame(d_cov$beta_cov)
+
+f11a=ggplot(beta_cov, aes(x = beta_cov[,1])) + 
+  geom_vline(xintercept=0)+
+  geom_histogram(aes(y = ..density..),
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Chum fry releases")
+
+f11b=ggplot(beta_cov, aes(x = beta_cov[,2])) + 
+  geom_vline(xintercept=0)+
+  geom_histogram(aes(y = ..density..),
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("Pink abundance")
+
+f11c=ggplot(beta_cov, aes(x = beta_cov[,3])) + 
+  geom_vline(xintercept=0)+
+  geom_histogram(aes(y = ..density..),
+                 colour = 1, fill = "darkred",bins=30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("SST anomaly")
+
+f11d=ggplot(beta_cov, aes(x = beta_cov[,4])) + 
+  geom_vline(xintercept=0)+
+  geom_histogram(aes(y = ..density..),
+                 colour = 1, fill = "darkred",bins = 30) +xlim(-1.5,1.5)+xlab('Effect size')+ggtitle("NPGO")
+
+
+plot_grid(f11a,f11b,f11c,f11d,ncol=2,nrow=2)
+```
+
